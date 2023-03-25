@@ -14,15 +14,15 @@ import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.OIConstants.pxnButtons;
+import io.github.oblarg.oblog.Loggable;
+import frc.robot.commands.Balance;
 import frc.robot.commands.SwerveJoystickCmd;
+import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.SwerveSubsystem;
 
 /**
@@ -34,12 +34,14 @@ import frc.robot.subsystems.SwerveSubsystem;
  * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
-public class RobotContainer {
+public class RobotContainer implements Loggable {
   private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
   private final Joystick driverJoystick = new Joystick(OIConstants.kDriverControllerPort);
   private final Joystick driverTurnJoystick = new Joystick(OIConstants.kDriverTurnControllerPort);
   private final Joystick pxnController = new Joystick(OIConstants.kPXNControllerPort);
+
+  private final LEDs leds = new LEDs();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -55,9 +57,11 @@ public class RobotContainer {
     configureBindings();
   }
 
+  // A function to bind buttons to commands
   private void configureBindings() {
     new JoystickButton(driverTurnJoystick, 2)
         .onTrue(new InstantCommand(() -> swerveSubsystem.zeroHeading()));
+    new JoystickButton(pxnController, pxnButtons.X).whileTrue(new Balance(swerveSubsystem));
   }
 
   /**
@@ -68,6 +72,7 @@ public class RobotContainer {
   public Command getAutonomousCommand(String pathName) {
     // An example command will be run in autonomous
     HashMap<String, Command> eventMap = new HashMap<String, Command>();
+    eventMap.put("balance", new Balance(swerveSubsystem));
 
     PathPlannerTrajectory path = PathPlanner.loadPath(pathName, AutoConstants.kMaxSpeedMetersPerSecond,
         AutoConstants.kMaxAccelerationMetersPerSecondSquared);
@@ -79,7 +84,7 @@ public class RobotContainer {
         new PIDConstants(AutoConstants.kPThetaController, 0, 0),
         swerveSubsystem::setModuleStates,
         eventMap,
-        true,
+        false,
         swerveSubsystem);
     return builder.fullAuto(path);
   }

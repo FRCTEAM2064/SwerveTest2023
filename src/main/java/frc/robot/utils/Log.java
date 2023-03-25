@@ -1,6 +1,9 @@
 package frc.robot.utils;
 
 public class Log {
+    // Used to print different types of log messages
+    // to the console in different colors.
+
     public static void info(String message) {
         // blue bold color
         System.out.println("\033[0;34;1mINFO " + message + "\033[0m");

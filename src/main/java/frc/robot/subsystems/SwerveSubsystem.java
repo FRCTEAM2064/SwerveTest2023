@@ -12,8 +12,10 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
+import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Log;
 
-public class SwerveSubsystem extends SubsystemBase {
+public class SwerveSubsystem extends SubsystemBase implements Loggable {
     private final SwerveModule frontLeft = new SwerveModule(
             DriveConstants.kFrontLeftDriveMotorPort,
             DriveConstants.kFrontLeftTurningMotorPort,
@@ -59,7 +61,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public SwerveSubsystem() {
         new Thread(() -> {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(3000);
                 zeroHeading();
             } catch (Exception e) {
             }
@@ -71,7 +73,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public double getHeading() {
-        return Math.IEEEremainder(gyro.getAngle(), 360);
+        return gyro.getAngle();
     }
 
     public Rotation2d getRotation2d() {
@@ -132,10 +134,12 @@ public class SwerveSubsystem extends SubsystemBase {
         };
     }
 
+    @Log
     public double getPitch() {
         return gyro.getPitch();
     }
 
+    @Log
     public double getRoll() {
         return gyro.getRoll();
     }
